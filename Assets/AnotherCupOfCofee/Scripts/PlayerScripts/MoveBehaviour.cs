@@ -17,6 +17,8 @@ public class MoveBehaviour : GenericBehaviour
 	private bool jump;                              // Boolean to determine whether or not the player started a jump.
 	private bool isColliding;                       // Boolean to determine if the player has collided with an obstacle.
 
+	private Rigidbody playerRB;						// RigidBody of the player
+
 	// Start is always called after any Awake functions.
 	void Start()
 	{
@@ -24,6 +26,7 @@ public class MoveBehaviour : GenericBehaviour
 		jumpBool = Animator.StringToHash("Jump");
 		groundedBool = Animator.StringToHash("Grounded");
 		behaviourManager.GetAnim.SetBool(groundedBool, true);
+		playerRB = this.GetComponent<Rigidbody>();
 
 		// Subscribe and register this behaviour as the default behaviour.
 		behaviourManager.SubscribeBehaviour(this);
@@ -185,13 +188,25 @@ public class MoveBehaviour : GenericBehaviour
 		isColliding = false;
 		GetComponent<CapsuleCollider>().material.dynamicFriction = 0.6f;
 		GetComponent<CapsuleCollider>().material.staticFriction = 0.6f;
+
+		if (collision.gameObject.CompareTag("plateform"))
+        {
+			Vector3 currentSpeed = playerRB.velocity;
+			this.transform.SetParent(null);
+			playerRB.velocity =  currentSpeed;
+		}
 	}
 
+	// On contact with a plateform
     private void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.CompareTag("plateform"))
         {
-			this.transform.Translate(collision.transform.position);
+
+			this.transform.SetParent(collision.gameObject.transform);
+
 		} 
     }
+
+	
 }
